@@ -584,9 +584,13 @@ static void *worker_pipeline(void *shared, int step, void *in)
 						assert(!r->sam_pri || r->id == r->parent);
 						if ((p->opt->flag & MM_F_NO_PRINT_2ND) && r->id != r->parent)
 							continue;
-						if (p->opt->flag & MM_F_OUT_SAM)
+						if (p->opt->flag & MM_F_OUT_SAM) {
+							fprintf(stderr, "---%ld---%lld\n", p->opt->flag, MM_F_OUT_SAM);
+							fprintf(stderr, "---%s----%s---%s---%d\n", t->name, t->seq, t->qual, t->l_seq);
+							// a cast: (const mm_reg1_t*const*)
+							// to a pointer to a constant pointer to a constant struct
 							mm_write_sam3(&p->str, mi, t, i - seg_st, j, s->n_seg[k], &s->n_reg[seg_st], (const mm_reg1_t*const*)&s->reg[seg_st], km, p->opt->flag, s->rep_len[i]);
-						else
+						} else
 							mm_write_paf3(&p->str, mi, t, r, km, p->opt->flag, s->rep_len[i]);
 						mm_err_puts(p->str.s);
 					}

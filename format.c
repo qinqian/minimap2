@@ -442,6 +442,9 @@ void mm_write_sam3(kstring_t *s, const mm_idx_t *mi, const mm_bseq1_t *t, int se
 			mm_sprintf_lite(s, "\t%s\t%d\t0\t*", mi->seq[this_rid].name, this_pos+1);
 		} else mm_sprintf_lite(s, "\t*\t0\t0\t*");
 	} else {
+	  fprintf(stderr, "---%d\n", r->rs+1);
+	  fprintf(stderr, "---%d\n", r->mapq);
+
 		this_rid = r->rid, this_pos = r->rs;
 		mm_sprintf_lite(s, "\t%s\t%d\t%d\t", mi->seq[r->rid].name, r->rs+1, r->mapq);
 		if ((opt_flag & MM_F_LONG_CIGAR) && r->p && r->p->n_cigar > max_bam_cigar_op - 2) {
@@ -457,11 +460,15 @@ void mm_write_sam3(kstring_t *s, const mm_idx_t *mi, const mm_bseq1_t *t, int se
 			else if ((flag & 0x100) && !(opt_flag & MM_F_SECONDARY_SEQ)) slen = 0;
 			else slen = r->qe - r->qs;
 			mm_sprintf_lite(s, "%dS%dN", slen, r->re - r->rs);
-		} else write_sam_cigar(s, flag, 0, t->l_seq, r, opt_flag);
+		} else {
+		  fprintf(stderr, "---write cigar\n");
+		  write_sam_cigar(s, flag, 0, t->l_seq, r, opt_flag);
+		}
 	}
 
 	// write mate positions
 	if (n_seg > 1) {
+	  fprintf(stderr, "---no mate\n");
 		int tlen = 0;
 		if (this_rid >= 0 && r_next) {
 			if (this_rid == r_next->rid) {
@@ -504,6 +511,8 @@ void mm_write_sam3(kstring_t *s, const mm_idx_t *mi, const mm_bseq1_t *t, int se
 			else mm_sprintf_lite(s, "*");
 		}
 	}
+
+	fprintf(stderr, "---write flag %d\n", flag);
 
 	// write tags
 	if (mm_rg_id[0]) mm_sprintf_lite(s, "\tRG:Z:%s", mm_rg_id);
